@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { ActionButtons } from './ActionButtons'
 import { CommentBox } from './CommentBox'
 import { DownloadButtons } from '@/components/bank/DownloadButtons'
+import { KycDocuments } from './KycDocuments'
 import {
   ApplicationStatus,
   STATUS_LABELS,
@@ -15,6 +16,7 @@ import {
   DocumentType,
 } from '@/lib/types'
 import Link from 'next/link'
+import Image from 'next/image'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('fr-FR', {
@@ -28,6 +30,49 @@ function formatDate(iso: string) {
 
 function formatAmount(amount: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(amount)
+}
+
+function DocPreview({ doc }: { doc: { id: string; file_url: string; document_type: string; file_name: string } }) {
+  const isPdf = doc.file_url.toLowerCase().includes('.pdf')
+  const label = DOCUMENT_LABELS[doc.document_type as DocumentType]
+
+  return (
+    <a
+      href={doc.file_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 transition-all hover:border-primary-300 hover:shadow-md"
+    >
+      {isPdf ? (
+        <div className="flex h-36 flex-col items-center justify-center gap-2 bg-red-50">
+          <svg className="h-10 w-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span className="text-xs text-red-500 font-medium">PDF</span>
+        </div>
+      ) : (
+        <div className="relative h-36 bg-gray-100">
+          <Image
+            src={doc.file_url}
+            alt={label}
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-white">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-gray-800 truncate">{label}</p>
+          <p className="text-xs text-gray-400 truncate">{doc.file_name}</p>
+        </div>
+        <svg className="h-3.5 w-3.5 shrink-0 text-primary-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </div>
+    </a>
+  )
 }
 
 function Row({ label, value }: { label: string; value: string | number | null | undefined }) {
@@ -138,33 +183,7 @@ export default async function ApplicationDossierPage({
             <CardHeader>
               <CardTitle>Documents KYC</CardTitle>
             </CardHeader>
-            {docs && docs.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {docs.map((doc) => (
-                  <a
-                    key={doc.id}
-                    href={doc.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                      <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-900">
-                        {DOCUMENT_LABELS[doc.document_type as DocumentType]}
-                      </p>
-                      <p className="text-xs text-blue-600">Voir →</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">Aucun document téléversé</p>
-            )}
+            <KycDocuments docs={(docs ?? []) as never} applicationId={id} />
           </Card>
 
           <Card>

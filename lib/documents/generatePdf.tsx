@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 24,
     paddingBottom: 16,
-    borderBottom: '2px solid #2563eb',
+    borderBottom: '2px solid #1B5FAA',
   },
   headerLeft: {
     flexDirection: 'column',
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   brand: {
     fontSize: 18,
     fontFamily: 'Helvetica-Bold',
-    color: '#2563eb',
+    color: '#1B5FAA',
   },
   brandSub: {
     fontSize: 9,
@@ -63,11 +63,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#D3E4F5',
   },
   statusText: {
     fontSize: 9,
-    color: '#1d4ed8',
+    color: '#154D8C',
     fontFamily: 'Helvetica-Bold',
   },
   meta: {
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 10,
     fontFamily: 'Helvetica-Bold',
-    color: '#2563eb',
+    color: '#1B5FAA',
     marginBottom: 6,
     paddingBottom: 4,
     borderBottom: '1px solid #e5e7eb',

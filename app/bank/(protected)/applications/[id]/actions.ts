@@ -89,6 +89,43 @@ export async function validateKYCAction(applicationId: string) {
   return changeStatus(applicationId, 'kyc_verification', 'Documents KYC validés', ['agent', 'supervisor', 'admin'])
 }
 
+export async function rejectDocumentAction(
+  documentId: string,
+  applicationId: string,
+  reason: string
+): Promise<{ error?: string; success?: boolean }> {
+  await requireBankUser()
+  const supabase = await createServiceClient()
+
+  const { error } = await supabase
+    .from('loan_documents')
+    .update({ status: 'rejected', reject_reason: reason || null })
+    .eq('id', documentId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/bank/applications/${applicationId}`)
+  return { success: true }
+}
+
+export async function approveDocumentAction(
+  documentId: string,
+  applicationId: string
+): Promise<{ error?: string; success?: boolean }> {
+  await requireBankUser()
+  const supabase = await createServiceClient()
+
+  const { error } = await supabase
+    .from('loan_documents')
+    .update({ status: 'approved', reject_reason: null })
+    .eq('id', documentId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/bank/applications/${applicationId}`)
+  return { success: true }
+}
+
 export async function requestMoreDocsAction(applicationId: string, note: string) {
   return changeStatus(applicationId, 'additional_docs_required', note || 'Documents complémentaires requis', ['agent', 'supervisor', 'admin'])
 }

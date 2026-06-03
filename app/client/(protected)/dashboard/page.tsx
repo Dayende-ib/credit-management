@@ -86,13 +86,23 @@ export default async function ClientDashboardPage() {
     .eq('client_id', user.id)
     .order('created_at', { ascending: false })
 
-  const { data: notifications } = await supabase
+  const { data: notifRows } = await supabase
     .from('notifications')
     .select('*')
     .eq('user_id', user.id)
     .eq('is_read', false)
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(1)
+
+  const notification = notifRows?.[0] ?? null
+
+  // Mark it as read immediately so it won't show again on next visit
+  if (notification) {
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notification.id)
+  }
 
   const latestApp = applications?.[0] ?? null
 
@@ -125,18 +135,14 @@ export default async function ClientDashboardPage() {
         ) : null}
       </div>
 
-      {/* Notifications */}
-      {notifications && notifications.length > 0 && (
-        <div className="mb-6 space-y-2">
-          {notifications.map((notif) => (
-            <div key={notif.id} className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="mt-0.5 h-2 w-2 rounded-full bg-blue-500 shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-blue-900">{notif.title}</p>
-                <p className="text-sm text-blue-700">{notif.message}</p>
-              </div>
-            </div>
-          ))}
+      {/* Latest notification — shown once, then marked read */}
+      {notification && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary-200 bg-primary-50 p-4">
+          <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary-500" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-primary-900">{notification.title}</p>
+            <p className="text-sm text-primary-700 mt-0.5">{notification.message}</p>
+          </div>
         </div>
       )}
 

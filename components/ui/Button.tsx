@@ -2,7 +2,7 @@
 
 import { ButtonHTMLAttributes, forwardRef } from 'react'
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'
+type Variant = 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost' | 'outline'
 type Size = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,17 +12,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400',
+  primary:   'bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300',
   secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 disabled:bg-gray-50',
-  danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400',
-  ghost: 'text-gray-600 hover:bg-gray-100 disabled:text-gray-400',
-  outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:text-gray-400',
+  accent:    'bg-accent-400 text-primary-900 hover:bg-accent-500 disabled:bg-accent-200 font-semibold',
+  danger:    'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400',
+  ghost:     'text-primary-600 hover:bg-primary-50 disabled:text-gray-400',
+  outline:   'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:text-gray-400',
 }
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  sm:  'px-3 py-1.5 text-sm',
+  md:  'px-4 py-2 text-sm',
+  lg:  'px-6 py-3 text-base',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -32,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={[
-          'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed',
+          'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed',
           variantClasses[variant],
           sizeClasses[size],
           className,

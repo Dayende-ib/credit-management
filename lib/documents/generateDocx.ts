@@ -46,8 +46,8 @@ function formatDateTime(iso: string) {
   })
 }
 
-const BLUE = '2563EB'
-const LIGHT_BLUE = 'DBEAFE'
+const BLUE = '1B5FAA'
+const LIGHT_BLUE = 'D3E4F5'
 const GRAY = '6B7280'
 const BORDER_COLOR = 'E5E7EB'
 

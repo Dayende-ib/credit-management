@@ -14,6 +14,9 @@ export type DocumentType =
   | 'selfie'
   | 'income_proof'
   | 'address_proof'
+  | 'additional'
+
+export type DocumentStatus = 'pending' | 'approved' | 'rejected'
 
 export type InternalRole = 'agent' | 'supervisor' | 'admin'
 
@@ -73,6 +76,8 @@ export interface LoanDocument {
   file_url: string
   file_name: string
   uploaded_at: string
+  status: DocumentStatus
+  reject_reason: string | null
 }
 
 export interface StatusHistory {
@@ -120,7 +125,12 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   selfie: 'Selfie',
   income_proof: 'Justificatif de revenu',
   address_proof: 'Justificatif de domicile',
+  additional: 'Document complémentaire',
 }
+
+export const STANDARD_DOC_TYPES: DocumentType[] = [
+  'id_front', 'id_back', 'selfie', 'income_proof', 'address_proof',
+]
 
 export const LOAN_TYPE_LABELS: Record<LoanType, string> = {
   personal: 'Crédit personnel',

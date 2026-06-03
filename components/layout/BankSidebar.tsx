@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { bankLogoutAction } from '@/app/bank/login/actions'
 import { BankSessionPayload } from '@/lib/auth/bank-session'
@@ -14,7 +15,9 @@ function NavLink({ href, label, icon, exact = false }: { href: string; label: st
       href={href}
       className={[
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-        active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+        active
+          ? 'bg-primary-50 text-primary-700'
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
       ].join(' ')}
     >
       {icon}
@@ -26,13 +29,15 @@ function NavLink({ href, label, icon, exact = false }: { href: string; label: st
 export function BankSidebar({ session }: { session: BankSessionPayload }) {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
-      <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-          <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-        </div>
-        <span className="font-semibold text-gray-900">CréditPro Bank</span>
+      {/* Logo */}
+      <div className="flex h-16 items-center border-b border-gray-200 px-5">
+        <Image src="/logo.webp" alt="BPBF" width={100} height={36} className="object-contain" priority />
+      </div>
+
+      {/* App name strip */}
+      <div className="bg-primary-600 px-5 py-2">
+        <p className="text-xs font-semibold tracking-widest text-accent-400 uppercase">CréditPro</p>
+        <p className="text-xs text-primary-200">Espace banque</p>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
@@ -70,7 +75,7 @@ export function BankSidebar({ session }: { session: BankSessionPayload }) {
 
       <div className="border-t border-gray-200 p-4">
         <div className="mb-3 flex items-center gap-3 px-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">
             {session.full_name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">

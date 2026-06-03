@@ -1,6 +1,7 @@
 import { verifyClientSession } from '@/lib/auth/dal'
 import { createClient } from '@/lib/supabase/server'
 import { ClientSidebar } from '@/components/layout/ClientSidebar'
+import { AppFooter } from '@/components/layout/AppFooter'
 import { redirect } from 'next/navigation'
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +22,10 @@ export default async function ClientLayout({ children }: { children: React.React
     <div className="flex h-screen bg-gray-50">
       <ClientSidebar fullName={profile.full_name} />
       <main className="flex-1 overflow-y-auto">
-        {children}
+        <div className="flex min-h-full flex-col">
+          <div className="flex-1">{children}</div>
+          <AppFooter />
+        </div>
       </main>
     </div>
   )

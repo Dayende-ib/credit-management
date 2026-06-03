@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { logoutAction } from '@/app/(auth)/actions'
 
@@ -11,6 +12,15 @@ const navItems = [
     icon: (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+  },
+  {
+    href: '/client/applications',
+    label: 'Mes demandes',
+    icon: (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
   },
@@ -30,13 +40,15 @@ export function ClientSidebar({ fullName }: { fullName: string }) {
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
-      <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-          <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <span className="font-semibold text-gray-900">CréditPro</span>
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-5">
+        <Image src="/logo.webp" alt="BPBF" width={100} height={36} className="object-contain" priority />
+      </div>
+
+      {/* App name strip */}
+      <div className="bg-primary-600 px-5 py-2">
+        <p className="text-xs font-semibold tracking-widest text-accent-400 uppercase">CréditPro</p>
+        <p className="text-xs text-primary-200">Espace client</p>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
@@ -48,7 +60,9 @@ export function ClientSidebar({ fullName }: { fullName: string }) {
               href={item.href}
               className={[
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                active
+                  ? 'bg-primary-50 text-primary-700'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
               ].join(' ')}
             >
               {item.icon}
@@ -60,7 +74,7 @@ export function ClientSidebar({ fullName }: { fullName: string }) {
 
       <div className="border-t border-gray-200 p-4">
         <div className="mb-3 flex items-center gap-3 px-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">
             {fullName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
