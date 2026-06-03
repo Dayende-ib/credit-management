@@ -77,8 +77,8 @@ function dataTable(rows: { label: string; value?: string | number | null }[]): T
       bottom: { style: BorderStyle.NONE },
       left: { style: BorderStyle.NONE },
       right: { style: BorderStyle.NONE },
-      insideH: { style: BorderStyle.SINGLE, size: 1, color: BORDER_COLOR },
-      insideV: { style: BorderStyle.NONE },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: BORDER_COLOR },
+      insideVertical: { style: BorderStyle.NONE },
     },
     rows: filteredRows.map((row) =>
       new TableRow({
@@ -148,8 +148,8 @@ export async function generateApplicationDocx(data: AppData): Promise<Buffer> {
                   bottom: { style: BorderStyle.SINGLE, size: 6, color: BLUE },
                   left: { style: BorderStyle.NONE },
                   right: { style: BorderStyle.NONE },
-                  insideH: { style: BorderStyle.NONE },
-                  insideV: { style: BorderStyle.NONE },
+                  insideHorizontal: { style: BorderStyle.NONE },
+                  insideVertical: { style: BorderStyle.NONE },
                 },
                 rows: [
                   new TableRow({
@@ -205,8 +205,9 @@ export async function generateApplicationDocx(data: AppData): Promise<Buffer> {
           }),
         },
         properties: {
-          pageNumberStart: 1,
-          pageNumberFormatType: NumberFormat.DECIMAL,
+          page: {
+            pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
+          },
         },
         children: [
           // Title

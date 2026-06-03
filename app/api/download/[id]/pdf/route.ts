@@ -32,7 +32,7 @@ export async function GET(
     docs: docs ?? [],
   })
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="dossier-${app.application_number}.pdf"`,

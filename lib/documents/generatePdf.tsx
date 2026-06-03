@@ -229,7 +229,7 @@ function ApplicationPDF({ data }: { data: AppData }) {
                 {STATUS_LABELS[app.status as keyof typeof STATUS_LABELS] ?? String(app.status)}
               </Text>
             </View>
-            {app.submitted_at && (
+            {!!app.submitted_at && (
               <Text style={styles.meta}>Soumis le {formatDate(String(app.submitted_at))}</Text>
             )}
             <Text style={styles.meta}>Généré le {formatDate(new Date().toISOString())}</Text>
