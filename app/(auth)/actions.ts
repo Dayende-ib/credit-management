@@ -20,6 +20,8 @@ const loginSchema = z.object({
 export type AuthState = {
   errors?: Record<string, string[]>
   message?: string
+  success?: boolean
+  email?: string
 }
 
 export async function registerAction(prevState: AuthState, formData: FormData): Promise<AuthState> {
@@ -49,7 +51,8 @@ export async function registerAction(prevState: AuthState, formData: FormData): 
     })
   }
 
-  redirect('/client/dashboard')
+  // Don't redirect — return success so the client shows a confirmation message
+  return { success: true, email }
 }
 
 export async function loginAction(prevState: AuthState, formData: FormData): Promise<AuthState> {
