@@ -31,7 +31,7 @@ export function BankSidebar({ session }: { session: BankSessionPayload }) {
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-gray-200 px-5">
-        <Image src="/logo.webp" alt="BPBF" width={100} height={36} className="object-contain" priority />
+        <Image src="/logo.webp" alt="BPBF" width={100} height={36} className="object-contain" style={{ height: 'auto' }} priority />
       </div>
 
       {/* App name strip */}

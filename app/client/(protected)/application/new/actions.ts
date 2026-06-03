@@ -1,6 +1,7 @@
 'use server'
 
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -156,7 +157,7 @@ export async function proceedToConfirm(prevState: StepState, formData: FormData)
 
 export async function submitApplication(prevState: StepState, formData: FormData): Promise<StepState> {
   const supabase = await createClient()
-  const service = await createServiceClient()
+  const service = createServiceClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { message: 'Non authentifié' }
 

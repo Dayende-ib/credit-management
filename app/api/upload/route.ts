@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
   const arrayBuffer = await file.arrayBuffer()
 
   // Storage upload - requires service role key OR storage policies for authenticated users
-  const service = await createServiceClient()
+  const service = createServiceClient()
   const { error: uploadError } = await service.storage
     .from('kyc-documents')
     .upload(storagePath, arrayBuffer, {
@@ -51,14 +52,15 @@ export async function POST(request: NextRequest) {
     .from('kyc-documents')
     .getPublicUrl(storagePath)
 
-  // DB insert - delete existing doc of same type then insert fresh
-  await supabase
+  // Use service client for DB ops — ownership already verified above
+  // DELETE policy doesn't exist for clients so we bypass via service role
+  await service
     .from('loan_documents')
     .delete()
     .eq('application_id', applicationId)
     .eq('document_type', documentType)
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await service
     .from('loan_documents')
     .insert({
       application_id: applicationId,

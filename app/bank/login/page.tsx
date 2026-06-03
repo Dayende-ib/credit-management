@@ -18,7 +18,7 @@ export default function BankLoginPage() {
       {/* Left — dark brand panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center bg-primary-900 p-12">
         <div className="mb-8 rounded-2xl bg-white/10 p-6">
-          <Image src="/logo.webp" alt="BPBF" width={180} height={66} className="object-contain" priority />
+          <Image src="/logo.webp" alt="BPBF" width={180} height={66} className="object-contain" style={{ height: 'auto' }} priority />
         </div>
         <h2 className="text-2xl font-bold text-white text-center">Espace Administration</h2>
         <p className="mt-3 text-primary-300 text-center max-w-xs text-sm">
@@ -37,7 +37,7 @@ export default function BankLoginPage() {
       {/* Right — form */}
       <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-gray-50 p-8">
         <div className="mb-6 lg:hidden">
-          <Image src="/logo.webp" alt="BPBF" width={140} height={50} className="object-contain" priority />
+          <Image src="/logo.webp" alt="BPBF" width={140} height={50} className="object-contain" style={{ height: 'auto' }} priority />
         </div>
 
         <div className="w-full max-w-md">

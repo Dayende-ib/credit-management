@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { getBankSession } from '@/lib/auth/bank-session'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -25,7 +25,7 @@ async function changeStatus(
     return { error: "Vous n'avez pas les droits pour cette action" }
   }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { error } = await supabase
     .from('loan_applications')
@@ -94,15 +94,43 @@ export async function rejectDocumentAction(
   applicationId: string,
   reason: string
 ): Promise<{ error?: string; success?: boolean }> {
-  await requireBankUser()
-  const supabase = await createServiceClient()
+  const session = await requireBankUser()
+  const supabase = createServiceClient()
 
-  const { error } = await supabase
+  // Mark document as rejected
+  const { error: docError } = await supabase
     .from('loan_documents')
     .update({ status: 'rejected', reject_reason: reason || null })
     .eq('id', documentId)
 
-  if (error) return { error: error.message }
+  if (docError) return { error: docError.message }
+
+  // Change application status to additional_docs_required only if not already set
+  const { data: app } = await supabase
+    .from('loan_applications')
+    .select('status, client_id, application_number')
+    .eq('id', applicationId)
+    .single()
+
+  if (app && app.status !== 'additional_docs_required') {
+    await supabase
+      .from('loan_applications')
+      .update({ status: 'additional_docs_required' })
+      .eq('id', applicationId)
+
+    await supabase.from('application_status_history').insert({
+      application_id: applicationId,
+      status: 'additional_docs_required',
+      changed_by: session.id,
+      note: '[KYC_REJECT] Documents KYC rejetés — re-soumission requise',
+    })
+
+    await supabase.from('notifications').insert({
+      user_id: app.client_id,
+      title: 'Documents à re-soumettre',
+      message: `Un ou plusieurs documents KYC de votre dossier ${app.application_number} ont été rejetés. Veuillez les soumettre à nouveau.`,
+    })
+  }
 
   revalidatePath(`/bank/applications/${applicationId}`)
   return { success: true }
@@ -113,7 +141,7 @@ export async function approveDocumentAction(
   applicationId: string
 ): Promise<{ error?: string; success?: boolean }> {
   await requireBankUser()
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { error } = await supabase
     .from('loan_documents')
@@ -127,7 +155,9 @@ export async function approveDocumentAction(
 }
 
 export async function requestMoreDocsAction(applicationId: string, note: string) {
-  return changeStatus(applicationId, 'additional_docs_required', note || 'Documents complémentaires requis', ['agent', 'supervisor', 'admin'])
+  // [COMPLEMENT] prefix distinguishes "new document" requests from KYC rejections
+  const markedNote = `[COMPLEMENT] ${note || 'Nouveau document complémentaire requis'}`
+  return changeStatus(applicationId, 'additional_docs_required', markedNote, ['agent', 'supervisor', 'admin'])
 }
 
 export async function setInAnalysisAction(applicationId: string) {
@@ -157,7 +187,7 @@ export async function addCommentAction(
   const parsed = commentSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors.content?.[0] }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { error } = await supabase.from('application_comments').insert({
     application_id: applicationId,
     author_id: session.id,

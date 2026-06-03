@@ -140,7 +140,7 @@ function DocPreview({ doc }: { doc: LoanDocument }) {
           </svg>
         </div>
       ) : (
-        <div className="relative h-28 bg-gray-100">
+        <div style={{ position: 'relative', height: '7rem' }} className="bg-gray-100">
           <Image
             src={doc.file_url}
             alt={label}
@@ -193,9 +193,16 @@ export default async function ClientApplicationDetailPage({
   const isRejected = app.status === 'rejected'
   const needsDocs = app.status === 'additional_docs_required'
 
-  // Get the agent's note from the most recent additional_docs_required history entry
-  const agentNote = needsDocs
-    ? (history ?? []).filter((h) => h.status === 'additional_docs_required').at(-1)?.note ?? null
+  // Get the most recent additional_docs_required history entry
+  const lastDocsEntry = needsDocs
+    ? [...(history ?? [])].reverse().find((h) => h.status === 'additional_docs_required') ?? null
+    : null
+
+  // Distinguish flows: [COMPLEMENT] prefix = new doc request, [KYC_REJECT] = KYC rejection
+  const isComplementRequest = lastDocsEntry?.note?.startsWith('[COMPLEMENT]') ?? false
+  const rawNote = lastDocsEntry?.note ?? null
+  const agentNote = rawNote
+    ? rawNote.replace(/^\[(COMPLEMENT|KYC_REJECT)\]\s*/, '')
     : null
 
   return (
@@ -253,6 +260,7 @@ export default async function ClientApplicationDetailPage({
         <SupplementaryUpload
           applicationId={id}
           agentNote={agentNote}
+          isComplementRequest={isComplementRequest}
           docs={(docs ?? []) as never}
         />
       )}

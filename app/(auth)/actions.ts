@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -40,7 +40,7 @@ export async function registerAction(prevState: AuthState, formData: FormData): 
   }
 
   if (data.user) {
-    const service = await createServiceClient()
+    const service = createServiceClient()
     await service.from('profiles').insert({
       id: data.user.id,
       full_name,

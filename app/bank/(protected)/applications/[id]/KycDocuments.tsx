@@ -137,7 +137,7 @@ function DocCard({
               <span className="text-xs font-medium text-red-500">PDF</span>
             </div>
           ) : (
-            <div className="relative h-36 bg-gray-100">
+            <div style={{ position: 'relative', height: '9rem' }} className="bg-gray-100">
               <Image src={doc.file_url} alt={label} fill className="object-cover transition-transform group-hover:scale-105" unoptimized />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
             </div>
@@ -196,7 +196,7 @@ function DocCard({
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              Rejeter
+              Rejeter KYC
             </button>
           )}
           {isRejected && (
@@ -214,18 +214,45 @@ function DocCard({
   )
 }
 
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString('fr-FR', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
+}
+
 export function KycDocuments({
   docs,
   applicationId,
+  resubmittedAt,
 }: {
   docs: LoanDocument[]
   applicationId: string
+  resubmittedAt: string | null
 }) {
   const rejectedCount = docs.filter((d) => d.status === 'rejected').length
   const approvedCount = docs.filter((d) => d.status === 'approved').length
+  const pendingCount = docs.filter((d) => d.status === 'pending').length
 
   return (
     <div>
+      {/* Resubmission alert */}
+      {resubmittedAt && (
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100">
+            <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-green-800">Le client a resoumis ses documents</p>
+            <p className="text-xs text-green-600 mt-0.5">
+              {formatDateTime(resubmittedAt)} — {pendingCount} document{pendingCount > 1 ? 's' : ''} en attente de vérification
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Summary badges */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="text-xs text-gray-500">{docs.length} / 6 documents</span>

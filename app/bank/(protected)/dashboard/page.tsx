@@ -1,5 +1,5 @@
 import { verifyBankSession } from '@/lib/auth/dal'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { StatCard } from '@/components/ui/Card'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { StatusBadge } from '@/components/ui/Badge'
@@ -15,7 +15,7 @@ function formatDate(iso: string) {
 
 export default async function BankDashboardPage() {
   const session = await verifyBankSession()
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: apps } = await supabase
     .from('loan_applications')

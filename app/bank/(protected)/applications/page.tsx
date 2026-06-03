@@ -1,5 +1,5 @@
 import { verifyBankSession } from '@/lib/auth/dal'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
 import Link from 'next/link'
@@ -33,7 +33,7 @@ export default async function ApplicationsListPage({
   const statusFilter = params.status ?? 'all'
   const search = params.search ?? ''
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   let query = supabase
     .from('loan_applications')

@@ -1,5 +1,5 @@
 import { requireRole } from '@/lib/auth/dal'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { RoleBadge } from '@/components/ui/Badge'
 import { AddUserForm } from './AddUserForm'
@@ -10,7 +10,7 @@ function formatDate(iso: string) {
 
 export default async function UsersPage() {
   await requireRole('admin')
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: users } = await supabase
     .from('internal_users')

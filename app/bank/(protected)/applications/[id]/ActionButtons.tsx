@@ -198,7 +198,7 @@ type ActiveAction = 'validate_kyc' | 'more_docs' | 'analysis' | 'approve' | 'rej
 const MODAL_CONFIGS: Record<Exclude<ActiveAction, null>, ModalConfig> = {
   validate_kyc: {
     title: 'Valider les documents KYC',
-    description: 'Confirmez que les documents d\'identité et justificatifs sont valides.',
+    description: 'Confirmez que tous les documents soumis sont valides. Le dossier passera en attente d\'analyse.',
     confirmLabel: 'Valider KYC',
     confirmColor: 'bg-primary-600 hover:bg-primary-700',
     withNote: true,
@@ -206,13 +206,13 @@ const MODAL_CONFIGS: Record<Exclude<ActiveAction, null>, ModalConfig> = {
     notePlaceholder: 'Documents conformes, aucune anomalie détectée...',
   },
   more_docs: {
-    title: 'Demander des documents complémentaires',
-    description: 'Le client sera notifié et invité à fournir des pièces supplémentaires.',
+    title: 'Demander un nouveau document',
+    description: 'Le client devra fournir un document supplémentaire non prévu initialement. Pour les documents KYC à corriger, utilisez "Rejeter KYC" sur le document concerné.',
     confirmLabel: 'Envoyer la demande',
     confirmColor: 'bg-orange-500 hover:bg-orange-600',
     withNote: true,
-    noteLabel: 'Documents requis',
-    notePlaceholder: 'Précisez les documents manquants ou à corriger...',
+    noteLabel: 'Nature du document demandé',
+    notePlaceholder: 'Ex : Attestation employeur, relevé bancaire des 3 derniers mois...',
   },
   analysis: {
     title: 'Passer le dossier en analyse',
@@ -292,9 +292,22 @@ export function ActionButtons({ applicationId, status, session }: ActionButtonsP
           </div>
         )}
 
-        {isAgentOrAbove && status === 'submitted' && (
+        {/* ── En attente du client ─────────────────────────── */}
+        {status === 'additional_docs_required' && (
+          <div className="flex items-center gap-2 rounded-xl bg-orange-50 px-3 py-2.5 text-sm text-orange-700 border border-orange-200 mb-1">
+            {IconDocs}
+            <span className="font-medium">En attente des documents client</span>
+          </div>
+        )}
+
+        {/* ── Valider KYC ────────────────────────────────── */}
+        {isAgentOrAbove && (
+          status === 'submitted' ||
+          status === 'kyc_verification' ||
+          status === 'additional_docs_required'
+        ) && (
           <ActionBtn
-            label="Valider KYC"
+            label={status === 'additional_docs_required' ? 'Marquer documents reçus' : 'Valider KYC'}
             icon={IconCheck}
             colorClass="bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200"
             onClick={() => setActiveAction('validate_kyc')}
@@ -302,17 +315,11 @@ export function ActionButtons({ applicationId, status, session }: ActionButtonsP
           />
         )}
 
-        {isAgentOrAbove && (status === 'submitted' || status === 'kyc_verification') && (
-          <ActionBtn
-            label="Demander complément"
-            icon={IconDocs}
-            colorClass="bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200"
-            onClick={() => setActiveAction('more_docs')}
-            disabled={isPending}
-          />
-        )}
-
-        {isAgentOrAbove && status === 'kyc_verification' && (
+        {/* ── Passer en analyse ──────────────────────────── */}
+        {isAgentOrAbove && (
+          status === 'kyc_verification' ||
+          status === 'additional_docs_required'
+        ) && (
           <ActionBtn
             label="Passer en analyse"
             icon={IconAnalysis}
@@ -322,6 +329,22 @@ export function ActionButtons({ applicationId, status, session }: ActionButtonsP
           />
         )}
 
+        {/* ── Nouveau document requis ────────────────────── */}
+        {isAgentOrAbove && (
+          status === 'submitted' ||
+          status === 'kyc_verification' ||
+          status === 'analysis'
+        ) && (
+          <ActionBtn
+            label="Nouveau document requis"
+            icon={IconDocs}
+            colorClass="bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200"
+            onClick={() => setActiveAction('more_docs')}
+            disabled={isPending}
+          />
+        )}
+
+        {/* ── Approuver / Rejeter ────────────────────────── */}
         {isSupervisorOrAbove && status === 'analysis' && (
           <>
             <ActionBtn
@@ -341,6 +364,18 @@ export function ActionButtons({ applicationId, status, session }: ActionButtonsP
           </>
         )}
 
+        {/* ── Rejeter la demande en attente docs ─────────── */}
+        {isSupervisorOrAbove && status === 'additional_docs_required' && (
+          <ActionBtn
+            label="Rejeter la demande"
+            icon={IconReject}
+            colorClass="bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+            onClick={() => setActiveAction('reject')}
+            disabled={isPending}
+          />
+        )}
+
+        {/* ── Statuts finaux ─────────────────────────────── */}
         {status === 'approved' && (
           <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 border border-green-200">
             {IconApprove} Demande approuvée
@@ -350,12 +385,6 @@ export function ActionButtons({ applicationId, status, session }: ActionButtonsP
         {status === 'rejected' && (
           <div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 border border-red-200">
             {IconReject} Demande rejetée
-          </div>
-        )}
-
-        {status === 'additional_docs_required' && (
-          <div className="flex items-center gap-2 rounded-xl bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700 border border-orange-200">
-            {IconDocs} Documents complémentaires requis
           </div>
         )}
       </div>

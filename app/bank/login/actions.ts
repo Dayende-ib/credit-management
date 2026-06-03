@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { setBankSession, deleteBankSession } from '@/lib/auth/bank-session'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -26,7 +26,7 @@ export async function bankLoginAction(prevState: BankLoginState, formData: FormD
 
   const { email, password } = parsed.data
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { data: user, error } = await supabase
     .from('internal_users')
     .select('*')

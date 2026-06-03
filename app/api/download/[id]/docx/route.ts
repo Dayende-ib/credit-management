@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getBankSession } from '@/lib/auth/bank-session'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { generateApplicationDocx } from '@/lib/documents/generateDocx'
 
 export async function GET(
@@ -11,7 +11,7 @@ export async function GET(
   if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
   const { id } = await params
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const [{ data: app }, { data: history }, { data: docs }] = await Promise.all([
     supabase.from('loan_applications').select('*, profiles(*)').eq('id', id).single(),

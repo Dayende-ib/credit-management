@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { getBankSession } from '@/lib/auth/bank-session'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -39,7 +39,7 @@ export async function addUserAction(prevState: AddUserState, formData: FormData)
   const { full_name, email, password, role } = parsed.data
   const password_hash = await bcrypt.hash(password, 12)
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { error } = await supabase.from('internal_users').insert({
     full_name,
     email,

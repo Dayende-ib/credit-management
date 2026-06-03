@@ -1,5 +1,5 @@
 import { verifyBankSession } from '@/lib/auth/dal'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { StatusBadge } from '@/components/ui/Badge'
@@ -51,7 +51,7 @@ function DocPreview({ doc }: { doc: { id: string; file_url: string; document_typ
           <span className="text-xs text-red-500 font-medium">PDF</span>
         </div>
       ) : (
-        <div className="relative h-36 bg-gray-100">
+        <div style={{ position: 'relative', height: '9rem' }} className="bg-gray-100">
           <Image
             src={doc.file_url}
             alt={label}
@@ -92,7 +92,7 @@ export default async function ApplicationDossierPage({
   const session = await verifyBankSession()
   const { id } = await params
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: app } = await supabase
     .from('loan_applications')
@@ -105,18 +105,24 @@ export default async function ApplicationDossierPage({
   const profile = app.profiles as Record<string, unknown> | null
 
   const [{ data: docs }, { data: history }, { data: comments }] = await Promise.all([
-    supabase.from('loan_documents').select('*').eq('application_id', id),
+    supabase.from('loan_documents').select('*').eq('application_id', id).order('uploaded_at', { ascending: true }),
     supabase
       .from('application_status_history')
       .select('*, internal_users(full_name)')
       .eq('application_id', id)
-      .order('changed_at', { ascending: false }),
+      .order('changed_at', { ascending: true }),
     supabase
       .from('application_comments')
       .select('*, internal_users(full_name, role)')
       .eq('application_id', id)
       .order('created_at', { ascending: false }),
   ])
+
+  // Detect resubmission: most recent kyc_verification entry triggered by client
+  const docsResubmittedAt = [...(history ?? [])]
+    .reverse()
+    .find((h) => h.status === 'kyc_verification' && h.note?.includes('complémentaires soumis par le client'))
+    ?.changed_at ?? null
 
   return (
     <div className="p-8">
@@ -183,7 +189,11 @@ export default async function ApplicationDossierPage({
             <CardHeader>
               <CardTitle>Documents KYC</CardTitle>
             </CardHeader>
-            <KycDocuments docs={(docs ?? []) as never} applicationId={id} />
+            <KycDocuments
+              docs={(docs ?? []) as never}
+              applicationId={id}
+              resubmittedAt={docsResubmittedAt}
+            />
           </Card>
 
           <Card>
@@ -229,11 +239,12 @@ export default async function ApplicationDossierPage({
           <Card>
             <CardTitle className="mb-4">Historique</CardTitle>
             <div className="space-y-3">
-              {(history ?? []).map((entry) => {
+              {[...(history ?? [])].reverse().map((entry) => {
                 const agent = entry.internal_users as { full_name?: string } | null
+                const isClientAction = entry.note?.includes('par le client')
                 return (
                   <div key={entry.id} className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-400" />
+                    <div className={['mt-1 h-2 w-2 shrink-0 rounded-full', isClientAction ? 'bg-green-400' : 'bg-primary-400'].join(' ')} />
                     <div>
                       <p className="text-sm font-medium text-gray-900">{STATUS_LABELS[entry.status as ApplicationStatus]}</p>
                       {entry.note && <p className="text-xs text-gray-500 mt-0.5">{entry.note}</p>}

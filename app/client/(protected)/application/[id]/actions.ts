@@ -1,12 +1,12 @@
 'use server'
 
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
-export async function resubmitDocumentsAction(applicationId: string) {
+export async function resubmitDocumentsAction(applicationId: string): Promise<{ error?: string; success?: boolean }> {
   const supabase = await createClient()
-  const service = await createServiceClient()
+  const service = createServiceClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
@@ -41,6 +41,9 @@ export async function resubmitDocumentsAction(applicationId: string) {
     message: `Vos documents complémentaires pour le dossier ${app.application_number} ont bien été transmis. Nous procédons à la vérification.`,
   })
 
+  // Revalidate both client and bank pages so both see the updated status
   revalidatePath(`/client/application/${applicationId}`)
-  redirect(`/client/application/${applicationId}`)
+  revalidatePath(`/bank/applications/${applicationId}`)
+  revalidatePath('/bank/applications')
+  return { success: true }
 }
